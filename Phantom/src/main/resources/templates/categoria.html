@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/CSS/estilos.css}">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <title th:text="'Phantom | ' + ${titulo}">Phantom | Categoría</title>
+
+</head>
+<body class="d-flex flex-column min-vh-100">
+
+<!-- BARRA DE NAVEGACIÓN -->
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark sticky-top shadow-sm py-3">
+    <div class="container">
+        <a class="navbar-brand fw-bold fs-3" th:href="@{/}" style="letter-spacing: 3px;">PHANTOM</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav mx-auto text-uppercase">
+                <li class="nav-item"><a class="nav-link px-4 fs-6" th:href="@{/categoria/juegos}">Videojuegos</a></li>
+                <li class="nav-item"><a class="nav-link px-4 fs-6" th:href="@{/categoria/consolas}">Consolas</a></li>
+                <li class="nav-item"><a class="nav-link px-4 fs-6" th:href="@{/categoria/tarjetas}">Coleccionables</a></li>
+                <li class="nav-item"><a class="nav-link px-4 fs-6" th:href="@{/categoria/perifericos}">Periféricos</a></li>
+            </ul>
+
+            <div class="position-relative me-3">
+                <div class="d-flex">
+                    <input id="inputBusqueda"
+                           class="form-control me-2 py-2 input-busqueda-phantom"
+                           type="search"
+                           placeholder="Buscar productos..."
+                           autocomplete="off">
+                </div>
+
+                <div id="contenedorResultados"
+                     class="position-absolute w-100 mt-1 shadow-lg rounded-3 d-none resultados-busqueda-phantom">
+                </div>
+            </div>
+
+            <div class="d-flex align-items-center mt-3 mt-lg-0">
+                <a href="#" class="text-white me-3 fs-4" data-bs-toggle="modal" data-bs-target="#loginModal">
+                    <i class="bi bi-person-circle"></i>
+                </a>
+                <a th:href="@{/carrito}" class="text-white fs-4 position-relative">
+                    <i class="bi bi-cart3"></i>
+                    <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger"
+                          style="font-size: 0.6rem;"
+                          th:text="${carritoCount}">0</span>
+                </a>
+            </div>
+        </div> </div> </nav>
+
+<main class="flex-grow-1">
+
+
+    <section class="bg-light py-4 border-bottom">
+        <div class="container">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb mb-2">
+                    <li class="breadcrumb-item"><a th:href="@{/}">Inicio</a></li>
+                    <li class="breadcrumb-item active" th:text="${titulo}">Categoría</li>
+                </ol>
+            </nav>
+            <h2 class="fw-bold mb-0 text-uppercase" style="letter-spacing: 2px;" th:text="${titulo}">Categoría</h2>
+        </div>
+    </section>
+
+    <!-- PRODUCTOS -->
+    <section class="py-5">
+        <div class="container">
+
+            <div id="loader" th:if="${productos == null}">
+                <div class="spinner-border text-dark mb-3" role="status"></div>
+                <p class="text-muted">Cargando productos...</p>
+            </div>
+
+            <div class="empty-state" th:if="${productos != null and #lists.isEmpty(productos)}">
+                <i class="bi bi-box-seam text-muted"></i>
+                <h5 class="mt-2">No hay productos en esta categoría aún</h5>
+                <p class="text-muted">Vuelve pronto, estamos actualizando nuestro inventario.</p>
+                <a th:href="@{/}" class="btn btn-dark mt-2 px-4">Volver al inicio</a>
+            </div>
+
+            <div class="row g-4" th:if="${productos != null and !#lists.isEmpty(productos)}">
+
+                <div class="col-12 mb-2">
+                    <p class="text-muted small">
+                        <span th:text="${#lists.size(productos)}">0</span> producto(s) encontrado(s)
+                    </p>
+                </div>
+
+                <div class="col-6 col-sm-4 col-md-3" th:each="producto : ${productos}">
+                    <div class="product-card h-100 d-flex flex-column">
+
+                        <div class="product-img-wrap">
+                            <img th:src="${producto.imagenUrl}"
+                                 th:alt="${producto.nombre}"
+                                 onerror="this.src='/Imagenes/consolatarjeta.jpg'">
+                        </div>
+
+                        <div class="p-3 d-flex flex-column flex-grow-1">
+                            <span class="badge-categoria mb-2 d-inline-block"
+                                  th:text="${producto.marca != null ? producto.marca : ''}">Marca</span>
+
+                            <p class="product-title mb-2" th:text="${producto.nombre}">Nombre del producto</p>
+
+                            <p class="text-muted small mb-3 flex-grow-1"
+                               th:text="${producto.descripcion != null ? #strings.abbreviate(producto.descripcion, 80) : ''}">
+                                Descripción
+                            </p>
+
+                            <div class="d-flex align-items-center justify-content-between mb-3">
+                                <span class="product-price"
+                                      th:text="'S/ ' + ${#numbers.formatDecimal(producto.precio, 1, 2)}">
+                                    S/ 0.00
+                                </span>
+                                <span class="badge bg-success"
+                                      th:if="${producto.stock != null and producto.stock > 0}">En stock</span>
+                                <span class="badge bg-secondary"
+                                      th:if="${producto.stock != null and producto.stock <= 0}">Agotado</span>
+                            </div>
+
+                            <form th:action="@{/carrito/agregar}" method="post">
+                                <button type="button"
+                                        class="btn btn-add w-100 py-2"
+                                        th:disabled="${producto.stock != null and producto.stock <= 0}"
+                                        th:attr="data-id=${producto.id},
+                 data-nombre=${producto.nombre},
+                 data-precio='S/ ' + ${#numbers.formatDecimal(producto.precio,1,2)},
+                 data-imagen=${producto.imagenUrl},
+                 data-marca=${producto.marca}"
+                                        onclick="agregarAlCarrito(this)">
+                                    <i class="bi bi-cart-plus me-1"></i>
+                                    <span th:if="${producto.stock != null and producto.stock > 0}">Agregar al carrito</span>
+                                    <span th:if="${producto.stock != null and producto.stock <= 0}">Agotado</span>
+                                </button>
+                                </form>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </section>
+</main>
+
+<!-- MODAL (Producto agregado al carrito)-->
+<div class="modal fade" id="modalCarrito" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" style="max-width: 420px;">
+        <div class="modal-content border-0 shadow-lg">
+            <div class="modal-body p-4">
+
+                <div class="d-flex align-items-center mb-3">
+                    <i class="bi bi-check-circle-fill text-success fs-4 me-2"></i>
+                    <span class="fw-bold fs-6">Producto agregado a tu Carro</span>
+                    <button type="button" class="btn-close ms-auto" data-bs-dismiss="modal"></button>
+                </div>
+
+                <hr class="my-2">
+
+                <div class="d-flex align-items-center gap-3 my-3">
+                    <img id="modalImg" src="" alt="producto" class="modal-img">
+                    <div>
+                        <p class="text-muted small mb-1" id="modalMarca">Marca</p>
+                        <p class="fw-semibold mb-1" id="modalNombre">Nombre</p>
+                        <p class="fw-bold text-danger mb-0 fs-5" id="modalPrecio">S/ 0.00</p>
+                    </div>
+                </div>
+
+                <hr class="my-2">
+
+                <div class="d-flex gap-2 mt-3">
+                    <button class="btn btn-seguir w-50 py-2" data-bs-dismiss="modal">
+                        Seguir comprando
+                    </button>
+                    <a href="/carrito" class="btn btn-ir-carro w-50 py-2 text-center text-decoration-none">
+                        Ir al Carro
+                    </a>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- FOOTER -->
+<footer class="bg-black text-white pt-5 border-top border-secondary">
+    <div class="container">
+        <div class="row gy-4">
+            <div class="col-md-4">
+                <h4 class="fw-bold text-danger mb-3">PHANTOM</h4>
+                <p class="text-secondary small">Tu tienda gamer de confianza en Perú. Consolas, videojuegos y accesorios al mejor precio.</p>
+                <div class="mt-3">
+                    <a href="#" class="text-white me-3 fs-5 social-icon"><i class="bi bi-facebook"></i></a>
+                    <a href="#" class="text-white me-3 fs-5 social-icon"><i class="bi bi-instagram"></i></a>
+                    <a href="#" class="text-white me-3 fs-5 social-icon"><i class="bi bi-tiktok"></i></a>
+                </div>
+            </div>
+            <div class="col-6 col-md-2">
+                <h6 class="fw-bold text-uppercase mb-3">Tienda</h6>
+                <ul class="list-unstyled small">
+                    <ul class="list-unstyled small">
+                        <li><a th:href="@{/categoria/juegos}" class="footer-link">Videojuegos</a></li>
+                        <li><a th:href="@{/categoria/consolas}" class="footer-link">Consolas</a></li>
+                        <li><a th:href="@{/categoria/tarjetas}" class="footer-link">Coleccionables</a></li>
+                        <li><a th:href="@{/categoria/perifericos}" class="footer-link">Periféricos</a></li>
+                    </ul>
+                </ul>
+            </div>
+            <div class="col-6 col-md-2">
+                <h6 class="fw-bold text-uppercase mb-3">Empresa</h6>
+                <ul class="list-unstyled small">
+                    <li><a th:href="@{/nosotros}" class="footer-link">Nosotros</a></li>
+                    <li><a th:href="@{/mision}" class="footer-link">Misión y Visión</a></li>
+                </ul>
+            </div>
+            <div class="col-md-4">
+                <h6 class="fw-bold text-uppercase mb-3">Contacto</h6>
+                <p class="small text-secondary mb-2"><i class="bi bi-geo-alt-fill me-2 text-danger"></i> Lima, Perú</p>
+                <p class="small text-secondary mb-2"><i class="bi bi-envelope-fill me-2 text-danger"></i> soporte@phantom.pe</p>
+                <p class="small text-secondary mb-3"><i class="bi bi-telephone-fill me-2 text-danger"></i> +51 999 888 777</p>
+            </div>
+        </div>
+        <hr class="border-secondary my-4">
+        <div class="d-flex flex-column flex-md-row justify-content-between align-items-center small text-secondary pb-3">
+        </div>
+    </div>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="/JS/carrito.js"></script>
+<script th:src="@{/JS/emergente.js}"></script>
+</body>
+</html>
