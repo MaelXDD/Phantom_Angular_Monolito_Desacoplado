@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { AuthService } from '../../core/services/auth.spec';
+import { AuthService } from '../../core/services/auth';
 import { Router } from '@angular/router';
 
 @Component({
@@ -21,14 +21,13 @@ export class Login {
   enviarLogin() {
     this.authService.login({ email: this.email, password: this.password }).subscribe({
       next: (res) => {
-        // Si el login es exitoso, Java nos devuelve el rol
         if (res.rol === 'ADMIN') {
           this.router.navigate(['/admin']);
         } else {
           this.router.navigate(['/inicio']);
         }
       },
-      error: (err) => alert('Credenciales incorrectas'),
+      error: (err) => console.error('Error de login', err),
     });
   }
 }
