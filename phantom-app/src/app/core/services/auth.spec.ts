@@ -10,8 +10,14 @@ export class AuthService {
 
   constructor(private http: HttpClient) {}
 
-  login(credenciales: any): Observable<any> {
-    return this.http.post(`${this.apiUrl}/login`, credenciales);
+
+  login(credentials: any): Observable<any> {
+    return this.http.post(`${this.apiUrl}/login`, credentials).pipe(
+      tap((res: any) => {
+        localStorage.setItem('usuario', JSON.stringify(res));
+        localStorage.setItem('rol', res.rol);
+      }),
+    );
   }
 
   registrar(usuario: any): Observable<any> {
